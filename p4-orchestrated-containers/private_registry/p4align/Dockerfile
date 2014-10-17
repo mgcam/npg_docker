@@ -14,7 +14,7 @@ WORKDIR /home
 # Build bwa
 RUN git clone -b $bwa_version https://github.com/lh3/bwa.git bwa
 WORKDIR ./bwa
-RUN make && make install
+RUN make && cp bwa /usr/local/bin
 WORKDIR ..
 
 # Build p4
@@ -27,8 +27,8 @@ WORKDIR ..
 
 # Add configuration & entrypoint script
 WORKDIR ..
-COPY ./p4_entrypoint.sh /p4_entrypoint.sh
-RUN chmod +x p4_entrypoint.sh
-COPY ./bwa_align.json /bwa_align.json
+ADD ./p4_entrypoint.sh /p4_entrypoint.sh
+RUN chmod +x /p4_entrypoint.sh
+ADD ./bwa_align.json /bwa_align.json
 CMD ["bash"]
 ENTRYPOINT ["./p4_entrypoint.sh"]

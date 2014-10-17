@@ -13,13 +13,13 @@
 #
 # Maintainer: Stefan Dang <sd15@sanger.ac.uk>
 
-set -o pipefail
-set -e
+# set -o pipefail
+# set -e
 
 # GLOBALS
-PROG=$1
-REF=$2             # $1 Name of reference container
-TARGET=$3          # $2 Absolute path to unaligned sequence on docker host
+PROG=$0
+REF=$1             # $1 Name of reference container
+TARGET=$2          # $2 Absolute path to unaligned sequence on docker host
 ALIGNER="p4align"  # Name of alignment container
 
 TARGET_DIR=$(dirname "$TARGET")
@@ -48,15 +48,18 @@ function main {
     err "USAGE: $PROG <reference> <path to sequence>"
   fi
 
+  source ./private_registry/setup_private_repo.sh
+ docker::setup_registry
   # Load functions and set up registry, if not present
   if [ -z "$(docker ps | grep sanger_registry)" ]; then
-    source ./private_registry/setup_private_repo.sh
     docker::setup_registry
   fi
 
   # Pull images if not present
-  docker::pull "localhost:$REGISTRY_PORT/$REF"
-  docker::pull "localhost:$REGISTRY_PORT/$ALIGNER"
+  image="localhost:$REGISTRY_PORT/$REF"
+  docker::pull "$image" || docker::build "./private_repository/$REF/"
+  image="localhost:$REGISTRY_PORT/$ALIGNER"
+  docker::pull "$image" || docker::build "./private_repository/$ALIGNER/"
 
   # Run reference container if not present. Expose folder for mounting.
   [[ -z "$(docker ps -a | grep "\s$name\s")" ]] && \
