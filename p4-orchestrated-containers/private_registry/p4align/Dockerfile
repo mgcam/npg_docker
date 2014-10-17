@@ -14,16 +14,14 @@ WORKDIR /home
 # Build bwa
 RUN git clone -b $bwa_version https://github.com/lh3/bwa.git bwa
 WORKDIR ./bwa
-RUN make
+RUN make && make install
 WORKDIR ..
 
 # Build p4
 RUN git clone https://github.com/wtsi-npg/p4.git p4
 WORKDIR ./p4/
 RUN perl ./Build.PL &&\
-    ./Build installdeps &&\
-    chmod +x ./bin/* &&\
-    cp ./bin/* /usr/local/bin
+    ./Build installdeps && ./Build install
 WORKDIR ..
 
 
