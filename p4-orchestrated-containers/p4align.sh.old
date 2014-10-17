@@ -62,7 +62,7 @@ function main {
   docker::pull "$image" || docker::build "./private_repository/$ALIGNER/"
 
   # Run reference container if not present. Expose folder for mounting.
-  [[ -z "$(docker ps -a | grep "\s$REF\s")" ]] && \
+  [[ -z "$(docker ps -a | grep "\s$name\s")" ]] && \
     docker run --name "$REF" -v "/reference" "localhost:$REGISTRY_PORT/$REF"
 
   # Run p4 flow container. Mount both reference folder and host folder.
